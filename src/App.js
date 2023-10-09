@@ -40,6 +40,7 @@ const gEventBus = new EventBus();
 class JsonTable extends Component {
   constructor(props) {
     super(props);
+ 
     this.state = {
       pageWidth : {},
       collapsed: {}, // 保存每个属性的折叠状态
@@ -106,8 +107,7 @@ class JsonTable extends Component {
       const parentKey = parent+"['" + key + "']";
       const eventBus = this.props.bus;
 
-      if(this.props.col || Array.isArray(value)){
-
+      if(this.props.col){
         return (
           <tr key={key}>
             <td style={cellStyle}>{key}</td>
@@ -136,7 +136,7 @@ class JsonTable extends Component {
                 <button style={commonTextStyle} onClick={() => this.setVisable(key)}>{isVisabled ? '+' : '-'}</button>
                 <button style={commonTextStyle} onClick={() => handleCopyClick(value)}>Copy</button>
                 <button style={commonTextStyle} onClick={() => gEventBus.emit('favAddSignal', parentKey)}>Fav</button>
-                <input type="range" id={key} min="100" max="400" value={parseInt(iPageWidth)} onChange={(event)=>this.handleWidthChange(key, event)}/>    
+                <input type="range" id={key} min="100" max="400" value={parseInt(iPageWidth)} onChange={(event)=>this.handleWidthChange(key, event)}/>
                 <label style={commonTextStyle}>{parentKey.replaceAll("'", "")}</label> 
                 {!isVisabled ? '' : <label style={commonTextStyle}>{JSON5.stringify(value, null, 0)}</label>}
               </tr>
@@ -145,7 +145,7 @@ class JsonTable extends Component {
               </tr>
             </table>
           </td>
-        );        
+        );
       }
     } else {
         if(this.props.col){
@@ -163,13 +163,13 @@ class JsonTable extends Component {
               <tr style={{...getValueStyle(value), ...cellValueStyle}}>{getValuePrint(value)}</tr>
               </table>
           </td>);
-        }
+       }
     }
   };
 
   render() {
     const { data, parent } = this.props;
-
+    
     const columnWidth = 100 / Object.keys(data).length + '%';
 
     return (
@@ -343,9 +343,7 @@ class App extends Component {
       pageWidth: '100%',
       online: true,
       collapsed: true, //this.checkIsMobile(),
-      data: [{
-        状态: '正在加载数据...'
-      }]
+      data: {状态: "正在加载数据..."}
     };
   }
 
@@ -445,7 +443,7 @@ class App extends Component {
 
   renderFav(key, data) {
     return (data == null ? '' : <div key={key}>
-      <FavTable data={data} collapsed={false} col={false || Array.isArray(data)} visabled={true} parent={key}/>
+      <FavTable data={data} visabled={true} parent={key}/>
     </div>)
   }
 
