@@ -40,12 +40,18 @@ const gEventBus = new EventBus();
 class JsonTable extends Component {
   constructor(props) {
     super(props);
- 
-    this.state = {
-      pageWidth : {},
-      collapsed: {}, // 保存每个属性的折叠状态
-      visabled: {},
-    };
+    this.localStorage = {};
+
+    if(this.props.localStorage && this.props.localStorage[this.props.parent]){
+      this.state = {...this.props.localStorage[this.props.parent]};
+    }
+    else{
+      this.state = {
+        pageWidth : {},
+        collapsed: {}, // 保存每个属性的折叠状态
+        visabled: {},
+      }; 
+    }
   }
 
   componentDidMount() {
@@ -95,6 +101,9 @@ class JsonTable extends Component {
   };
 
   handleClear = (key) =>{
+    if(!this.props.localStorage){
+      this.localStorage = {};
+    }
     this.setState({ [key]: {}});
   };
 
@@ -120,7 +129,7 @@ class JsonTable extends Component {
               <input type="range" id={key} min="100" max="400" value={parseInt(iPageWidth)} onChange={(event)=>this.handleWidthChange(key, event)}/>
               <label style={commonTextStyle}>{parentKey.replaceAll("'", "")}</label> 
               {!isVisabled ? '' : <label style={commonTextStyle}>{JSON5.stringify(value, null, 0)}</label>}
-              {isVisabled ? '' : <JsonTable data={value} collapsed={this.props.collapsed} col={isCollapsed} visabled={isVisabled} parent={parentKey} bus={eventBus}/>}
+              {isVisabled ? '' : <JsonTable key={this.props.collapsed} localStorage={this.props.localStorage ? this.props.localStorage : this.localStorage} data={value} collapsed={this.props.collapsed} col={isCollapsed} visabled={isVisabled} parent={parentKey} bus={eventBus}/>}
             </td>
           </table>
           </tr>
@@ -141,7 +150,7 @@ class JsonTable extends Component {
                 {!isVisabled ? '' : <label style={commonTextStyle}>{JSON5.stringify(value, null, 0)}</label>}
               </tr>
               <tr>
-                {isVisabled ? '' : <JsonTable data={value} collapsed={this.props.collapsed} col={isCollapsed} visabled={isVisabled} parent={parentKey} bus={eventBus}/>}
+                {isVisabled ? '' : <JsonTable key={this.props.collapsed} localStorage={this.props.localStorage ? this.props.localStorage : this.localStorage} data={value} collapsed={this.props.collapsed} col={isCollapsed} visabled={isVisabled} parent={parentKey} bus={eventBus}/>}
               </tr>
             </table>
           </td>
@@ -171,6 +180,10 @@ class JsonTable extends Component {
     const { data, parent } = this.props;
     
     const columnWidth = 100 / Object.keys(data).length + '%';
+
+    if(this.props.localStorage && this.props.parent){
+      this.props.localStorage[this.props.parent] = {...this.state};
+    }
 
     return (
       <table style={{...tableStyle1}}>
@@ -344,6 +357,7 @@ class App extends Component {
       online: true,
       collapsed: true, //this.checkIsMobile(),
       data: {状态: "正在加载数据..."}
+      //data: {状态: "正在加载数据...", aa: 1, bb: 2, cc: { dd: 1, ee: 2, ff: {gg: 1, hh: 2, ii: {mm: 1, nn: 2}}}}
     };
   }
 
